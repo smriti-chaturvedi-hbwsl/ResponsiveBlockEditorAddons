@@ -32,13 +32,22 @@ export default class Edit extends Component {
   editShareIconHandler(index, type, val) {
     const { attributes, setAttributes } = this.props;
     let socialMediaIcons = [...attributes.socialMediaIcons];
-    socialMediaIcons[index] ? (socialMediaIcons[index][type] = val) : "";
-    setAttributes({ socialMediaIcons });
+    let socialMediaIconsCopy = [];
+    attributes.socialMediaIcons.forEach(obj => {
+      let copyObj = {...obj};
+      socialMediaIconsCopy.push(copyObj);
+    })
+    socialMediaIconsCopy[index] ? (socialMediaIconsCopy[index][type] = val) : "";
+    setAttributes({ socialMediaIcons: socialMediaIconsCopy });
   }
 
   insertIconHandler() {
     const { attributes, setAttributes } = this.props;
-    let socialMediaIcons = [...attributes.socialMediaIcons];
+    let socialMediaIconsCopy = [];
+    attributes.socialMediaIcons.forEach(obj => {
+      let copyObj = {...obj};
+      socialMediaIconsCopy.push(copyObj);
+    })    
     const newShareIcon = {
       icon: "skype",
       label: "Skype",
@@ -46,18 +55,22 @@ export default class Edit extends Component {
       url: "https://skype.com/",
       newTab: false,
     };
-    socialMediaIcons.push(newShareIcon);
-    this.setState({ activeIcon: socialMediaIcons.length - 1 });
-    setAttributes({ socialMediaIcons });
+    socialMediaIconsCopy.push(newShareIcon);
+    this.setState({ activeIcon: socialMediaIconsCopy.length - 1 });
+    setAttributes({ socialMediaIcons: socialMediaIconsCopy });
   }
 
   removeIconHandler() {
     const { attributes, setAttributes } = this.props;
     const { activeIcon } = this.state;
-    let socialMediaIcons = [...attributes.socialMediaIcons];
-    socialMediaIcons.splice(activeIcon, 1);
+    let socialMediaIconsCopy = [];
+    attributes.socialMediaIcons.forEach(obj => {
+      let copyObj = {...obj};
+      socialMediaIconsCopy.push(copyObj);
+    })    
+    socialMediaIconsCopy.splice(activeIcon, 1);
     this.setState({ activeIcon: -1 });
-    setAttributes({ socialMediaIcons });
+    setAttributes({ socialMediaIcons: socialMediaIconsCopy });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -91,7 +104,6 @@ export default class Edit extends Component {
       attributes: {
         block_id,
         socialMediaIcons,
-        showIconLabel,
         iconsAlign,
         viewOption,
         labelFontFamily,
@@ -120,50 +132,53 @@ export default class Edit extends Component {
                   key={index}
                   className="responsive-block-editor-addons-share-icon"
                 >
-                  <a
-                    target={icon.newTab ? "_blank" : null}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      this.setState({
-                        activeLabel: index,
-                        activeIcon: showIconEditor
-                          ? activeIcon == index
-                            ? -1
-                            : index
-                          : index,
-                        showIconEditor: !showIconEditor,
-                      });
-                    }}
-                  >
-                    <div className="rbea-social-icon responsive-block-editor-addons-share-icon-svg-container">
-                      {(viewOption === "icon" || viewOption === "icontext") && (
-                        <span className={classnames(
-                          "rbea-social-icon responsive-block-editor-addons-share-icon-svg",
-                          iconColorType === 'official' ?`responsive-block-editor-addons-icon-${icon.icon}` : '',
-                        )}>
+                  {(viewOption === "icon" || viewOption === "icontext") && (
+                    <a
+                      target={icon.newTab ? "_blank" : null}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        this.setState({
+                          activeLabel: index,
+                          activeIcon: showIconEditor
+                            ? activeIcon == index
+                              ? -1
+                              : index
+                            : index,
+                          showIconEditor: !showIconEditor,
+                        });
+                      }}
+                    >
+                      <div className="rbea-social-icon responsive-block-editor-addons-share-icon-svg-container">
+                        <span
+                          className={classnames(
+                            "rbea-social-icon responsive-block-editor-addons-share-icon-svg",
+                            iconColorType === "official"
+                              ? `responsive-block-editor-addons-icon-${icon.icon}`
+                              : ""
+                          )}
+                        >
                           {renderSVG(icon.icon)}
                         </span>
-                      )}
-                    </div>
+                      </div>
                     </a>
-                    <a
-                    target={icon.newTab ? "_blank" : null}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      this.setState({
-                        activeLabel: index,
-                        activeIcon: showIconEditor
-                          ? activeIcon == index
-                            ? -1
-                            : index
-                          : index,
-                        showIconEditor: !showIconEditor,
-                      });
-                    }}
-                  >
-                    {icon.label &&
-                      showIconLabel &&
-                      (viewOption === "text" || viewOption === "icontext") && (
+                  )}
+                  {icon.label &&
+                    (viewOption === "text" || viewOption === "icontext") && (
+                      <a
+                        target={icon.newTab ? "_blank" : null}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          this.setState({
+                            activeLabel: index,
+                            activeIcon: showIconEditor
+                              ? activeIcon == index
+                                ? -1
+                                : index
+                              : index,
+                            showIconEditor: !showIconEditor,
+                          });
+                        }}
+                      >
                         <div
                           className="responsive-block-editor-addons-share-icon-label"
                           contentEditable="true"
@@ -178,8 +193,8 @@ export default class Edit extends Component {
                         >
                           {icon.label}
                         </div>
-                      )}
-                  </a>
+                      </a>
+                    )}
                   {showIconEditor && activeIcon == index && isSelected && (
                     <Fragment>
                       <Popover
@@ -239,7 +254,7 @@ export default class Edit extends Component {
                                 "newTab",
                                 val
                               )
-                            }                        
+                            }
                           />
                           <br />
                           <Button
